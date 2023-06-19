@@ -3,7 +3,7 @@ Pinhole camera model and camera calibration.
 ## Dependencies:
 Ceres solver, OpenCV, my Utils
 ## Note:
-Pixel center is used for coordinates conversion from discrete to continuous image space.
+Pixel center is used for coordinates conversion from discrete to continuous image space. What is differ from OpenCV convention. 
 ```c++ 
 cv::Point src;
 cv::Point2f dst(src.x + 0.5f, src.y + 0.5f);
