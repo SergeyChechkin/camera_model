@@ -1,5 +1,5 @@
 # Pinhole camera model 
-Pinhole camera model and camera calibration.
+Pinhole camera model and camera calibration. Perspective projection model. Radial, Decentering and Thin prism distortion models. 10 model parameters total.
 ## Dependencies:
 Ceres solver, OpenCV, my Utils
 ## Note:
