@@ -2,6 +2,10 @@
 
 #include <Eigen/Core>
 
+/// @brief Pinhole camera model. 
+/// Perspective projection. Radial, decentering and Thin prism distortions.
+/// 10 camera model parameters total.
+/// @tparam T - scalar type 
 template<typename T>
 class PinholeCameraModel {
 public:
@@ -12,6 +16,9 @@ public:
         std::copy(params, params + 10, params_.data()); 
     }
 
+    /// @brief Convert 3D point in camera frame to image frame
+    /// @param point - 3D point
+    /// @return - image point
     Vector2D Project(const Vector3D& point) {
         if (abs(point[2]) < std::numeric_limits<T>::epsilon()) 
             return Vector2D(params_[2], params_[3]);
@@ -20,10 +27,22 @@ public:
         return prjct + Distort(prjct) + Vector2D(params_[2], params_[3]);
     } 
 
+    /// @brief Convert image point to 3D point in camera frame 
+    /// @param point - image point
+    /// @return - 3D point
     Vector3D ReProject(const Vector2D& point) {
         Vector2D dist_prjct = point - Vector2D(params_[2], params_[3]);
         Vector2D undist_prjct = dist_prjct - Undistort(dist_prjct);
         return Vector3D(undist_prjct[0] / params_[0], undist_prjct[1] / params_[1], T(1));
+    } 
+
+    /// @brief Convert point from image frame to unit plane frame 
+    /// @param point - image point 
+    /// @return - unit plane point 
+    Vector2D ImageToUnitPlane(const Vector2D& point) {
+        Vector2D dist_prjct = point - Vector2D(params_[2], params_[3]);
+        Vector2D undist_prjct = dist_prjct - Undistort(dist_prjct);
+        return Vector2D(undist_prjct[0] / params_[0], undist_prjct[1] / params_[1]);
     } 
 
     Vector2D Project(const T point[3]) {
