@@ -30,6 +30,7 @@ public:
         const std::array<double, 10>& dst_camera_params);
     void GenerateDistortionRemap(
         cv::Size dst_image_size,
+        const Eigen::Matrix3d& rot,
         cv::Mat& dx, 
         cv::Mat& dy);
     Eigen::Vector2d RemapPoint(const Eigen::Vector2d& src);

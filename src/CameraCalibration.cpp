@@ -187,6 +187,7 @@ Eigen::Vector2d PinholeCameraRemap::RemapPoint(const Eigen::Vector2d& src) {
 
 void PinholeCameraRemap::GenerateDistortionRemap(
         cv::Size dst_image_size,
+        const Eigen::Matrix3d& rot,
         cv::Mat& dx, 
         cv::Mat& dy) {    
     dx = cv::Mat(dst_image_size.height, dst_image_size.width, CV_32F);
@@ -195,7 +196,8 @@ void PinholeCameraRemap::GenerateDistortionRemap(
     for(int v = 0; v < dst_image_size.height; ++v) {
         for(int u = 0; u < dst_image_size.width; ++u) {
             Eigen::Vector2d src(u + 0.5, v + 0.5);
-            Eigen::Vector2d dst = src_cm_.Project(dst_cm_.ReProject(src));
+            Eigen::Vector3d src_3d = rot * dst_cm_.ReProject(src);
+            Eigen::Vector2d dst = src_cm_.Project(src_3d);
             dx.at<float>(v, u) = dst.x();
             dy.at<float>(v, u) = dst.y();
         }
