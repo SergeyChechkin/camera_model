@@ -193,13 +193,17 @@ void PinholeCameraRemap::GenerateDistortionRemap(
     dx = cv::Mat(dst_image_size.height, dst_image_size.width, CV_32F);
     dy = cv::Mat(dst_image_size.height, dst_image_size.width, CV_32F);
     
-    for(int v = 0; v < dst_image_size.height; ++v) {
-        for(int u = 0; u < dst_image_size.width; ++u) {
-            Eigen::Vector2d src(u + 0.5, v + 0.5);
-            Eigen::Vector3d src_3d = rot * dst_cm_.ReProject(src);
-            Eigen::Vector2d dst = src_cm_.Project(src_3d);
-            dx.at<float>(v, u) = dst.x();
-            dy.at<float>(v, u) = dst.y();
+    cv::parallel_for_(cv::Range(0, dst_image_size.height), [&](const cv::Range & range){
+        for(int v = range.start; v < range.end; ++v) {
+            for(int u = 0; u < dst_image_size.width; ++u) {
+                Eigen::Vector2d src(u + 0.5, v + 0.5);
+                Eigen::Vector3d src_3d = rot * dst_cm_.ReProject(src);
+                Eigen::Vector2d dst = src_cm_.Project(src_3d);
+                dx.at<float>(v, u) = dst.x();
+                dy.at<float>(v, u) = dst.y();
+            }
         }
-    }
+    }); 
+
+    
 }
