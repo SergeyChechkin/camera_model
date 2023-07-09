@@ -31,3 +31,4 @@ install(
   INCLUDES DESTINATION include
 )
 
+add_subdirectory(test)

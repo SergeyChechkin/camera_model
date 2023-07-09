@@ -1,6 +1,10 @@
+/// BSD 3-Clause License
+/// Copyright (c) 2023, Sergey Chechkin
+/// Autor: Sergey Chechkin, schechkin@gmail.com 
+
 #pragma once
 
-#include "CameraModel.h"
+#include "PinholeCameraModel.h"
 #include <opencv2/core.hpp>
 #include <Eigen/Core>
 
@@ -37,5 +41,4 @@ public:
 private:
     PinholeCameraModel<double> src_cm_;
     PinholeCameraModel<double> dst_cm_;
-    //cv::Size dst_image_size_; 
 };

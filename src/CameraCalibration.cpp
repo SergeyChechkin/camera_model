@@ -1,5 +1,9 @@
+/// BSD 3-Clause License
+/// Copyright (c) 2023, Sergey Chechkin
+/// Autor: Sergey Chechkin, schechkin@gmail.com 
+
 #include "camera_model/CameraCalibration.h"
-#include "camera_model/CameraModel.h"
+#include "camera_model/PinholeCameraModel.h"
 #include "utils/ImageUtils.h"
 #include "utils/CeresUtils.h"
 
@@ -203,7 +207,5 @@ void PinholeCameraRemap::GenerateDistortionRemap(
                 dy.at<float>(v, u) = dst.y();
             }
         }
-    }); 
-
-    
+    });     
 }
