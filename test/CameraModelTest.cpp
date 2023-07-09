@@ -3,6 +3,7 @@
 /// Autor: Sergey Chechkin, schechkin@gmail.com 
 
 #include "camera_model/ProjectionModel.h"
+#include "camera_model/DistortionModel.h"
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <random>
@@ -81,6 +82,33 @@ TEST(ProjectionTest, EquidistantProjectionTest) {
 
     ASSERT_DOUBLE_EQ(sperical[0], M_PI / 2);
     ASSERT_DOUBLE_EQ(sperical[1], M_PI / 4);
+}
+
+TEST(DistortionTest, DistortionsTest) {
+    std::array<double, 2> params = {0, 0}; 
+    Eigen::Vector2d point(1,1); 
+    Eigen::Vector2d result;
+
+    RadialDistortionModel<double, 2> dist_model_1(params.data());
+    result = dist_model_1.Distort(point);
+    ASSERT_DOUBLE_EQ(result[0], 0.0);
+    ASSERT_DOUBLE_EQ(result[1], 0.0);
+
+    DecenteringDistortionModel<double> dist_model_2(params.data());
+    result = dist_model_2.Distort(point);
+    ASSERT_DOUBLE_EQ(result[0], 0.0);
+    ASSERT_DOUBLE_EQ(result[1], 0.0);
+
+    ThinPrismDistortionModel<double> dist_model_3(params.data());
+    result = dist_model_3.Distort(point);
+    ASSERT_DOUBLE_EQ(result[0], 0.0);
+    ASSERT_DOUBLE_EQ(result[1], 0.0);
+
+    std::array<double, 8> params_8 = {0, 0, 0, 0, 0, 0, 0, 0};
+    CombinedDistortionModel<double, 8> dist_model_4(params_8.data());
+    result = dist_model_4.Distort(point);
+    ASSERT_DOUBLE_EQ(result[0], 0.0);
+    ASSERT_DOUBLE_EQ(result[1], 0.0);
 }
 
 int main(int argc, char **argv) {

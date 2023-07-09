@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "PinholeCameraModel.h"
+#include "camera_model/PinholeCameraModel.h"
 #include <opencv2/core.hpp>
 #include <Eigen/Core>
 

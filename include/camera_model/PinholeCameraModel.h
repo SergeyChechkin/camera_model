@@ -59,35 +59,35 @@ public:
 
     const std::array<T, 10>& Params()const {return params_;}
 private:
-    Vector2D Distort(Vector2D r) {
-        T rx = r.x();
-        T ry = r.y();
-        T rx_2 = rx * rx;
-        T ry_2 = ry * ry;
-        T rx_ry_2 = T(2) * rx * ry;
-        T r_2 = rx_2 + ry_2;
+    Vector2D Distort(const Vector2D& r) {
+        const T rx = r.x();
+        const T ry = r.y();
+        const T rx_2 = rx * rx;
+        const T ry_2 = ry * ry;
+        const T rx_ry_2 = T(2) * rx * ry;
+        const T r_2 = rx_2 + ry_2;
         
         // Radial distortion: 
-        Vector2D rad_dist = r * (params_[4] * r_2 + params_[5] * r_2 * r_2);
+        const Vector2D rad_dist = r * (params_[4] * r_2 + params_[5] * r_2 * r_2);
         // Decentering distortion:
-        Vector2D dsnt_dist(params_[6] * (T(3) * rx_2 + ry_2) + params_[7] * rx_ry_2, params_[7] * (T(3) * ry_2 + rx_2) + params_[6] * rx_ry_2);
+        const Vector2D dsnt_dist(params_[6] * (T(3) * rx_2 + ry_2) + params_[7] * rx_ry_2, params_[7] * (T(3) * ry_2 + rx_2) + params_[6] * rx_ry_2);
         // Thin prism distortion:
-        Vector2D th_pr_dist(params_[8] * r_2, params_[9] * r_2);
+        const Vector2D th_pr_dist(params_[8] * r_2, params_[9] * r_2);
         return rad_dist + dsnt_dist + th_pr_dist;
     }
 
-    Vector2D Undistort(Vector2D dr) {
+    Vector2D Undistort(const Vector2D& dr) {
         // Iterative solution without J computation (J close to 1).
         Vector2D r = dr;
-        Vector2D distortion;
+        Vector2D distortion = Distort(r);
 
         for(size_t i = 0; i < max_iterations_; ++i) {
-            distortion = Distort(r);
             Vector2D error = dr - (r + distortion);
             r = dr - distortion;
             if(error.squaredNorm() < std::numeric_limits<T>::epsilon()) {
                 break;
             }
+            distortion = Distort(r);
         }
 
         return distortion;
