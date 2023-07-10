@@ -4,13 +4,14 @@
 
 #include "camera_model/ProjectionModel.h"
 #include "camera_model/DistortionModel.h"
+#include "camera_model/CameraModel.h"
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <random>
 
 
 TEST(ProjectionTest, PerspectiveProjectionTest) { 
-    PerspectivePM<double> projection;
+    Perspective<double> projection(1);
     Eigen::Vector3d point_3d(1,1,1);
     auto point_2d = projection.Project(point_3d);
 
@@ -49,7 +50,7 @@ TEST(ProjectionTest, PerspectiveProjectionTest) {
 }
 
 TEST(ProjectionTest, EquidistantProjectionTest) { 
-    EquidistantPM<double> projection;
+    Equidistant<double> projection;
     Eigen::Vector3d point_3d(1,1,1); 
     point_3d.normalize();
     auto point_2d = projection.Project(point_3d);
@@ -89,26 +90,47 @@ TEST(DistortionTest, DistortionsTest) {
     Eigen::Vector2d point(1,1); 
     Eigen::Vector2d result;
 
-    RadialDistortionModel<double, 2> dist_model_1(params.data());
+    RadialPolynomial<double, 2> dist_model_1(params.data());
     result = dist_model_1.Distort(point);
     ASSERT_DOUBLE_EQ(result[0], 0.0);
     ASSERT_DOUBLE_EQ(result[1], 0.0);
 
-    DecenteringDistortionModel<double> dist_model_2(params.data());
+    Decentering<double> dist_model_2(params.data());
     result = dist_model_2.Distort(point);
     ASSERT_DOUBLE_EQ(result[0], 0.0);
     ASSERT_DOUBLE_EQ(result[1], 0.0);
 
-    ThinPrismDistortionModel<double> dist_model_3(params.data());
+    std::array<double, 4> params_4 = {0, 0, 0, 0};
+    ThinPrism<double> dist_model_3(params_4.data());
     result = dist_model_3.Distort(point);
     ASSERT_DOUBLE_EQ(result[0], 0.0);
     ASSERT_DOUBLE_EQ(result[1], 0.0);
 
-    std::array<double, 8> params_8 = {0, 0, 0, 0, 0, 0, 0, 0};
-    CombinedDistortionModel<double, 8> dist_model_4(params_8.data());
+    std::array<double, 6> params_6 = {0, 0, 0, 0, 0, 0};
+    GenericCombined<double> dist_model_4(params_6.data());
     result = dist_model_4.Distort(point);
     ASSERT_DOUBLE_EQ(result[0], 0.0);
     ASSERT_DOUBLE_EQ(result[1], 0.0);
+}
+
+TEST(CameraModelTest, CameraModelTest) {
+    const Eigen::Vector2d pp(320, 240);
+    const double f = 500;
+    std::shared_ptr<ProjectionModel<double>> projection = std::make_shared<Perspective<double>>(f);
+    std::array<double, 6> params_6 = {0, 0, 0, 0, 0, 0};
+    std::shared_ptr<DistortionModel<double>> distortion = std::make_shared<GenericCombined<double>>(params_6.data());
+    UniversalCameraModel<double> cm(projection, distortion, pp);
+
+    Eigen::Vector3d point_3d(0.1, 0.1, 1);
+    auto image_point = cm.Project(point_3d); 
+    ASSERT_DOUBLE_EQ(image_point[0], 370);
+    ASSERT_DOUBLE_EQ(image_point[1], 290);
+
+    auto up_point = cm.ReProjectToUnitPlane(image_point);
+
+    ASSERT_DOUBLE_EQ(point_3d[0], up_point[0]);
+    ASSERT_DOUBLE_EQ(point_3d[1], up_point[1]);
+    ASSERT_DOUBLE_EQ(point_3d[2], up_point[2]);
 }
 
 int main(int argc, char **argv) {
