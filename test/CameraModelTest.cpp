@@ -52,7 +52,7 @@ TEST(ProjectionTest, PerspectiveProjectionTest) {
 }
 
 TEST(ProjectionTest, EquidistantProjectionTest) { 
-    Equidistant<double> projection;
+    Equidistant<double> projection(1.0);
     Eigen::Vector3d point_3d(1,1,1); 
     point_3d.normalize();
     auto point_2d = projection.Project(point_3d);
@@ -115,13 +115,11 @@ TEST(DistortionTest, DistortionsTest) {
     ASSERT_DOUBLE_EQ(result[1], 0.0);
 }
 
-TEST(CameraModelTest, CameraModelTest) {
-    const Eigen::Vector2d pp(320, 240);
-    const double f = 500;
-    std::shared_ptr<ProjectionModel<double>> projection = std::make_shared<Perspective<double>>(f);
+TEST(CameraModelTest, GeometricCameraModelTest) {
+    std::shared_ptr<ProjectionModel<double>> projection = std::make_shared<Perspective<double>>(500);
     std::array<double, 6> params_6 = {0, 0, 0, 0, 0, 0};
     std::shared_ptr<DistortionModel<double>> distortion = std::make_shared<GenericCombined<double>>(params_6.data());
-    UniversalCameraModel<double> cm(projection, distortion, pp);
+    GeometricCameraModel<double> cm(projection, distortion, {320, 240}, {640, 480});
 
     Eigen::Vector3d point_3d(0.1, 0.1, 1);
     auto image_point = cm.Project(point_3d); 
@@ -133,10 +131,6 @@ TEST(CameraModelTest, CameraModelTest) {
     ASSERT_DOUBLE_EQ(point_3d[0], up_point[0]);
     ASSERT_DOUBLE_EQ(point_3d[1], up_point[1]);
     ASSERT_DOUBLE_EQ(point_3d[2], up_point[2]);
-}
-
-TEST(CameraModelTest, GeometricCameraModelTest) {
-    GeometricCameraModel<double, Perspective<double>, RadialPolynomial<double, 3>> cm({320, 240}, {640, 480});
 }
 
 int main(int argc, char **argv) {
