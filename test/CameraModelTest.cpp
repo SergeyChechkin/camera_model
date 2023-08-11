@@ -5,6 +5,8 @@
 #include "camera_model/ProjectionModel.h"
 #include "camera_model/DistortionModel.h"
 #include "camera_model/CameraModel.h"
+#include "camera_model/GeometricCameraModel.h"
+
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <random>
@@ -131,6 +133,10 @@ TEST(CameraModelTest, CameraModelTest) {
     ASSERT_DOUBLE_EQ(point_3d[0], up_point[0]);
     ASSERT_DOUBLE_EQ(point_3d[1], up_point[1]);
     ASSERT_DOUBLE_EQ(point_3d[2], up_point[2]);
+}
+
+TEST(CameraModelTest, GeometricCameraModelTest) {
+    GeometricCameraModel<double, Perspective<double>, RadialPolynomial<double, 3>> cm({320, 240}, {640, 480});
 }
 
 int main(int argc, char **argv) {

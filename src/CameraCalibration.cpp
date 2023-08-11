@@ -2,7 +2,7 @@
 /// Copyright (c) 2023, Sergey Chechkin
 /// Autor: Sergey Chechkin, schechkin@gmail.com 
 
-#include "camera_model/CameraCalibration.h"
+#include "camera_calibration/CameraCalibration.h"
 #include "camera_model/PinholeCameraModel.h"
 #include "utils/ImageUtils.h"
 #include "utils/CeresUtils.h"

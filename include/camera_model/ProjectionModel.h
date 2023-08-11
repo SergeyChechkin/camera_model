@@ -19,7 +19,7 @@ public:
 template<typename T>
 class Perspective final : public ProjectionModel<T> {
 public:
-    Perspective(T f = T(1.0)) : f_(f), inv_f_(1.0/f) {}
+    Perspective(T f) : f_(f), inv_f_(1.0/f) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         if (abs(point[2]) < std::numeric_limits<T>::epsilon()) 
             return {T(0), T(0)};
@@ -47,7 +47,7 @@ private:
 template<typename T>
 class Equidistant final : public ProjectionModel<T> {
 public:
-    Equidistant(T f = T(1.0)) : f_(f), inv_f_(1.0/f) {}
+    Equidistant(T f) : f_(f), inv_f_(1.0/f) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         using std::acos;
         

@@ -6,13 +6,14 @@
 
 #include <Eigen/Core>
 #include <cmath>
+#include <memory>
 
 template<typename T>
 class DistortionModel {
 public:
     virtual Eigen::Vector2<T> Distort(const Eigen::Vector2<T>& r) const = 0; 
     virtual Eigen::Vector2<T> Undistort(const Eigen::Vector2<T>& dr) const {
-        // Iterative solution without J computation (J close to I).
+        // Iterative solution without J computation (assumption: J close to I).
         const size_t max_iterations = 20;   // usually less than 8 
         Eigen::Vector2<T> r = dr;
         Eigen::Vector2<T> distortion = Distort(r);
@@ -115,4 +116,20 @@ public:
     } 
 private:
     std::array<T, 6> params_;
+};
+
+template<typename T>
+class CompositeDistortionModel final : public DistortionModel<T> {
+public:
+    void AddModel(std::shared_ptr<DistortionModel<T>> model) {
+        models_.push_back(model);
+    } 
+    Eigen::Vector2<T> Distort(const Eigen::Vector2<T>& r) const override {
+        Eigen::Vector2<T> result(0, 0);
+        for(const auto& model : models_) {
+            result += model->Distort(r);
+        }
+    } 
+private:
+    std::vector<std::shared_ptr<DistortionModel<T>>> models_;
 };
