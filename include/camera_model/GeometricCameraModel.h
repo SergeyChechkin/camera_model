@@ -22,7 +22,7 @@ public:
     GeometricCameraModel(
         const ptrProjectionT projection, 
         const ptrDistortionT distortion, 
-        const Point2D >& pp, 
+        const Point2D& pp, 
         const Eigen::Vector2i& image_size) 
     : projection_(projection)
     , distortion_(distortion)
