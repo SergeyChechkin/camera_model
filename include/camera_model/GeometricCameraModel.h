@@ -22,7 +22,7 @@ public:
     GeometricCameraModel(
         const ptrProjectionT projection, 
         const ptrDistortionT distortion, 
-        const Eigen::Vector2<ScalarT>& pp, 
+        const Point2D >& pp, 
         const Eigen::Vector2i& image_size) 
     : projection_(projection)
     , distortion_(distortion)
@@ -33,7 +33,7 @@ public:
     GeometricCameraModel(
         const ptrProjectionT projection, 
         const ptrDistortionT distortion, 
-        const Eigen::Vector2<ScalarT> pp, 
+        const Point2D pp, 
         const cv::Mat& mask) 
     : projection_(projection)
     , distortion_(distortion)
@@ -95,7 +95,7 @@ private:
 private:
     const ptrProjectionT projection_;   // projection model
     const ptrDistortionT distortion_;   // distortion model
-    Eigen::Vector2<ScalarT> pp_;        // principal point
+    Point2D pp_;                        // principal point
     Eigen::Vector2i image_size_;        // image size
     cv::Mat mask_;                      // mask image, defined valid area of the image
 };
