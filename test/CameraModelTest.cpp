@@ -97,6 +97,35 @@ TEST(ProjectionTest, EquidistantProjectionTest) {
     ASSERT_DOUBLE_EQ(sperical[1], M_PI / 4);
 }
 
+TEST(ProjectionTest, FoVProjectionTest) { 
+    double f = 450.0;
+    double w = 0.95;
+    FieldOfView<double> projection(&f);
+    Eigen::Vector3d point_3d(1,1,1); 
+    auto point_2d = projection.Project(point_3d);
+    auto point_3d_ = projection.ReProjectToUnitPlane(point_2d);
+
+    ASSERT_NEAR(point_3d_[0], point_3d[0], 1.0e-6);
+    ASSERT_NEAR(point_3d_[1], point_3d[1], 1.0e-6);
+    ASSERT_NEAR(point_3d_[2], point_3d[2], 1.0e-6);
+
+    point_2d = projection.Project({0,0,0});
+
+    ASSERT_DOUBLE_EQ(point_2d[0], 0.0);
+    ASSERT_DOUBLE_EQ(point_2d[1], 0.0);
+
+    point_2d = projection.Project({0,0,1});
+
+    ASSERT_DOUBLE_EQ(point_2d[0], 0.0);
+    ASSERT_DOUBLE_EQ(point_2d[1], 0.0);
+
+    point_3d_ = projection.ReProjectToUnitSphere({0,0});
+
+    ASSERT_DOUBLE_EQ(point_3d_[0], 0.0);
+    ASSERT_DOUBLE_EQ(point_3d_[1], 0.0);
+    ASSERT_DOUBLE_EQ(point_3d_[2], 1.0);
+}
+
 TEST(DistortionTest, DistortionsTest) {
     std::array<double, 2> params = {0, 0}; 
     Eigen::Vector2d point(1,1); 

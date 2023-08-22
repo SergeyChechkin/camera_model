@@ -107,3 +107,56 @@ private:
     T f_;
     T inv_f_;
 };
+
+template<typename T>
+class FieldOfView final : public ProjectionModel<T> {
+public:
+    static constexpr size_t param_size_ = 2;
+public:
+    FieldOfView(const T params[param_size_]) 
+    : f_(params[0])
+    , inv_f_(T(1.0) / params[0])
+    , w_(params[1])
+    , inv_w_(T(1.0) / params[1])
+    , two_tan_w_2_(2 * tan(params[1] / 2)) {
+    }
+
+    Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
+        const auto& xy = point.block(0, 0, 2, 1);
+        const T ru = xy.norm();
+
+        if(std::numeric_limits<T>::epsilon() > ru) {
+            return {T(0.0), T(0.0)};
+        } else {
+            const T rd = atan2(ru * two_tan_w_2_, point[2]) / w_;
+            return (f_ * rd / ru) * xy;
+        }
+    } 
+
+    Eigen::Vector3<T> ReProjectToUnitPlane(const Eigen::Vector2<T>& point) const override {
+        const auto m = inv_f_ * point;
+        const T rd = m.norm();
+        
+        if(std::numeric_limits<T>::epsilon() > rd) {
+            return {T(0.0), T(0.0), T(1.0)};
+        } else {
+            const T k = sin(rd * w_) / (rd * two_tan_w_2_);
+            return {k * m[0], k * m[1], cos(rd * w_)};
+        }
+    }
+
+    Eigen::Vector3<T> ReProjectToUnitSphere(const Eigen::Vector2<T>& point) const override {
+        return ReProjectToUnitPlane(point).normalized();
+    }
+
+    Eigen::Vector2<T> ToSpherical(const Eigen::Vector2<T>& point) const override { 
+        throw std::logic_error("Unsupported method.");
+        return {};
+    }
+private:
+    T f_;
+    T inv_f_;
+    T w_;
+    T inv_w_;
+    T two_tan_w_2_;
+};
