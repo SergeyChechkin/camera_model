@@ -8,9 +8,26 @@
 #include <opencv2/core.hpp>
 #include <Eigen/Core>
 
+#include <ceres/rotation.h>
+
+template<typename T>
+Eigen::Vector3<T> GlobalToCamera(const T src[3], const T pose[6]) {
+    Eigen::Vector3<T> result;
+    ceres::AngleAxisRotatePoint(pose, src, result.data());
+    return result + Eigen::Vector3<T>(pose + 3);
+}
+
+template<typename T, typename CameraT, size_t Nm>
+Eigen::Vector2<T> GlobalToImage(const T src[3], const T pose[6], const T camera_params[Nm]) {
+    Eigen::Vector3<T> camera_point = GlobalToCamera(src, pose);
+    CameraT cm(camera_params);
+    return cm.Project(camera_point);
+}
+
 class PinholeCameraCalibration {
 public:
     PinholeCameraCalibration(cv::Size image_size, cv::Size pattern_size, cv::Size patch_size = {11, 11});
+    void AddFrame(const std::vector<cv::Point2f>& image_points, const std::vector<cv::Point3f>& object_points);
     bool AddFrame(const cv::Mat& frame, cv::Mat* result = nullptr);
     void Calibrate(std::array<double, 10>& camera_params);
 private:

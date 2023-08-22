@@ -19,10 +19,12 @@ public:
 template<typename T>
 class Perspective final : public ProjectionModel<T> {
 public:
-    Perspective(T f) : f_(f), inv_f_(1.0/f) {}
+    static constexpr size_t param_size_ = 1;
+public:
+    Perspective(const T params[param_size_]) : f_(params[0]), inv_f_(T(1.0) / params[0]) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         if (abs(point[2]) < std::numeric_limits<T>::epsilon()) 
-            return {T(0), T(0)};
+            return {T(0.0), T(0.0)};
 
         return {f_ * point[0] / point[2], f_ * point[1] / point[2]};
     } 
@@ -47,18 +49,20 @@ private:
 template<typename T>
 class Equidistant final : public ProjectionModel<T> {
 public:
-    Equidistant(T f) : f_(f), inv_f_(1.0/f) {}
+    static constexpr size_t param_size_ = 1;
+public:
+    Equidistant(const T params[param_size_]) : f_(params[0]), inv_f_(T(1.0) / params[0]) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         using std::acos;
         
         const T r_xyz = point.norm();
         if(std::numeric_limits<T>::epsilon() > r_xyz) {
-            return {zero, zero};
+            return {T(0.0), T(0.0)};
         } else {
             const auto& xy = point.block(0, 0, 2, 1);
             const T r_xy = xy.norm();
             const T elevation = acos(point[2] / r_xyz);
-            const Eigen::Vector2<T> azimuth_vec = r_xy > std::numeric_limits<T>::epsilon() ? xy / r_xy : Eigen::Vector2<T>(zero, zero);
+            const Eigen::Vector2<T> azimuth_vec = r_xy > std::numeric_limits<T>::epsilon() ? xy / r_xy : Eigen::Vector2<T>(T(0.0), T(0.0));
             return f_ * elevation * azimuth_vec;
         }
     } 
@@ -76,7 +80,7 @@ public:
         const Eigen::Vector2<T> point_ = inv_f_ * point;
         const T elevation = point_.norm();
         if(elevation < std::numeric_limits<T>::epsilon()) {
-            return {zero, zero, one};
+            return {T(0.0), T(0.0), T(1.0)};
         }
 
         const T inv_norm = T(1) / elevation;
@@ -93,15 +97,13 @@ public:
 
         const T elevation = point.norm();
         if(elevation < std::numeric_limits<T>::epsilon()) {
-            return {zero, zero};
+            return {T(0.0), T(0.0)};
         }
 
         const T azimuth = atan2(point[1], point[0]);
         return {elevation, azimuth};
     }
 private:
-    static constexpr T one = T(1);
-    static constexpr T zero = T(0);
     T f_;
     T inv_f_;
 };

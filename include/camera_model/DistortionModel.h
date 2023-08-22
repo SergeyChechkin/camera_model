@@ -31,8 +31,27 @@ public:
     } 
 };
 
+template<typename T>
+class NullDistortion final : public DistortionModel<T> {
+public:
+    static constexpr size_t param_size_ = 0;
+public:
+    NullDistortion(const T* params) {
+    }
+
+    Eigen::Vector2<T> Distort(const Eigen::Vector2<T>& r) const override {
+        return {T(0.0), T(0.0)};
+    }
+
+    Eigen::Vector2<T> Undistort(const Eigen::Vector2<T>& dr) const override {
+        return {T(0.0), T(0.0)};
+    }
+};
+
 template<typename T, size_t Nm>
 class RadialPolynomial final : public DistortionModel<T> {
+public:
+    static constexpr size_t param_size_ = Nm;
 public:
     RadialPolynomial(const T params[Nm]) {
         std::copy(params, params + Nm, params_.data()); 
@@ -57,6 +76,8 @@ private:
 template<typename T>
 class Decentering final : public DistortionModel<T> {
 public:
+    static constexpr size_t param_size_ = 2;
+public:
     Decentering(const T params[2]) {
         std::copy(params, params + 2, params_.data()); 
     }
@@ -77,6 +98,8 @@ private:
 template<typename T>
 class ThinPrism final : public DistortionModel<T> {
 public:
+    static constexpr size_t param_size_ = 4;
+public:
     ThinPrism(const T params[4]) {
         std::copy(params, params + 4, params_.data()); 
     }
@@ -93,8 +116,10 @@ private:
 template<typename T>
 class GenericCombined final : public DistortionModel<T> {
 public:
-    GenericCombined(const T params[6]) {
-        std::copy(params, params + 6, params_.data()); 
+    static constexpr size_t param_size_ = 6;
+public:
+    GenericCombined(const T params[param_size_]) {
+        std::copy(params, params + param_size_, params_.data()); 
     }
 
     Eigen::Vector2<T> Distort(const Eigen::Vector2<T>& r) const override {

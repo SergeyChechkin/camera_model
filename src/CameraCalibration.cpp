@@ -6,6 +6,7 @@
 #include "camera_model/PinholeCameraModel.h"
 #include "utils/ImageUtils.h"
 #include "utils/CeresUtils.h"
+#include "utils/IOStreamUtils.h"
 
 #include "spatial_hash/SpatialHash2DVector.h"
 using namespace libs::spatial_hash;
@@ -58,6 +59,13 @@ bool PinholeCameraCalibration::AddFrame(const cv::Mat& frame, cv::Mat* result) {
     return sucsess;
 }
 
+void PinholeCameraCalibration::AddFrame(const std::vector<cv::Point2f>& image_points, const std::vector<cv::Point3f>& object_points) {
+        image_points_.push_back(image_points);
+        object_points_.push_back(object_points); 
+        points_weights_.push_back(std::vector<float>(image_points.size(), 1));
+        poses_.push_back({0, 0, 0, 0, 0, 1.0});
+}
+
 void PinholeCameraCalibration::CalculateWeight() {
     float cell_size = 20;
     SpatialHashTable2DVector<float, std::pair<size_t, size_t>> hash_table(cell_size); 
@@ -92,20 +100,6 @@ void PinholeCameraCalibration::CalculateWeight() {
             points_weights_[i][j] = count_per_pixel * M_PI * radius_sqr / count;
         }
     }
-}
-
-template<typename T>
-Eigen::Vector3<T> GlobalToCamera(const T src[3], const T pose[6]) {
-    Eigen::Vector3<T> result;
-    ceres::AngleAxisRotatePoint(pose, src, result.data());
-    return result + Eigen::Vector3<T>(pose + 3);
-}
-
-template<typename T, typename CameraT, size_t Nm>
-Eigen::Vector2<T> GlobalToImage(const T src[3], const T pose[6], const T camera_params[Nm]) {
-    Eigen::Vector3<T> camera_point = GlobalToCamera(src, pose);
-    CameraT cm(camera_params);
-    return cm.Project(camera_point);
 }
 
 class PnpCalibCostFunction {
@@ -154,10 +148,10 @@ void PinholeCameraCalibration::Calibrate(std::array<double, 10>& camera_params) 
             Eigen::Vector3d oblect_point(op.x, op.y, op.z);
             Eigen::Vector2d image_point(ip.x, ip.y);
             ceres::CostFunction* cost_function = PnpCalibCostFunction::Create(oblect_point, image_point);
-
-            problem.AddResidualBlock(cost_function, nullptr, poses_[i].data(), camera_params.data());
+            problem.AddResidualBlock(cost_function, new ceres::CauchyLoss(2.0), poses_[i].data(), camera_params.data());
         }
-        problem.SetParameterBlockConstant(camera_params.data());
+        
+        problem.SetParameterBlockConstant(camera_params.data());        
         Optimize(problem, false, 10, 1e-3);
     }
 
@@ -171,11 +165,11 @@ void PinholeCameraCalibration::Calibrate(std::array<double, 10>& camera_params) 
             Eigen::Vector2d image_point(ip.x, ip.y);
             ceres::CostFunction* cost_function = PnpCalibCostFunction::Create(oblect_point, image_point, points_weights_[i][j]);
 
-            problem.AddResidualBlock(cost_function, nullptr, poses_[i].data(), camera_params.data());
+            problem.AddResidualBlock(cost_function, new ceres::CauchyLoss(2.0), poses_[i].data(), camera_params.data());
         }
     }
 
-    Optimize(problem, true, 1000, 1e-12);
+    Optimize(problem, true, 1000, 1e-6);    
 }
 
 PinholeCameraRemap::PinholeCameraRemap(
