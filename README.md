@@ -1,3 +1,5 @@
+# Generalized camera model 
+Generalized geometrical camera model is a  framework that allows combining any types of projection and distortion models.
 # Pinhole camera model 
 Pinhole camera model and camera calibration. Perspective projection model. Radial, Decentering and Thin prism distortion models. 10 model parameters total.
 ## Dependencies:
