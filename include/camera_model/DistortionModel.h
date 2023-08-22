@@ -36,7 +36,7 @@ class NullDistortion final : public DistortionModel<T> {
 public:
     static constexpr size_t param_size_ = 0;
 public:
-    NullDistortion(const T* params) {
+    NullDistortion(const T* params = nullptr) {
     }
 
     Eigen::Vector2<T> Distort(const Eigen::Vector2<T>& r) const override {

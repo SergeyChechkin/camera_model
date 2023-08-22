@@ -10,6 +10,7 @@
 #include "camera_calibration/CameraModelGenerator.h"
 #include "camera_calibration/GeometricCameraModelCalibration.h"
 #include "camera_calibration/CameraCalibration.h"
+#include "camera_calibration/FrameRemapper.h"
 
 #include <utils/IOStreamUtils.h>
 #include "utils/CeresUtils.h"
@@ -292,6 +293,23 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest2) {
     std::array<double, 10> camera_params = {510, 510, 0.5 * image_size.width - 5, 0.5 * image_size.height - 5, 0, 0, 0, 0, 0, 0};
     calibration.Calibrate(camera_params);
     std::cout << camera_params << std::endl;
+}
+
+TEST(CameraModelTest, FrameRemapperTest) {
+    
+    double f = 450;
+    double cx = 320;
+    double cy = 240;
+    double w = 640;
+    double h = 480;
+
+    std::shared_ptr<Perspective<double>> src_pojrction = std::make_shared<Perspective<double>>(f);
+    std::shared_ptr<NullDistortion<double>> distortion = std::make_shared<NullDistortion<double>>();
+    GeometricCameraModel<double> src(src_pojrction, distortion, {cx, cy}, {w, h});
+    std::shared_ptr<Perspective<double>> dst_pojrction = std::make_shared<Perspective<double>>(f);
+    GeometricCameraModel<double> dst(dst_pojrction, distortion, {cx, cy}, {w, h});
+
+    FrameRemapper remapper(src, dst, Eigen::Matrix3d::Identity());
 }
 
 int main(int argc, char **argv) {

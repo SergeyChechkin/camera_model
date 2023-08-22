@@ -22,6 +22,7 @@ public:
     static constexpr size_t param_size_ = 1;
 public:
     Perspective(const T params[param_size_]) : f_(params[0]), inv_f_(T(1.0) / params[0]) {}
+    Perspective(const T f) : f_(f), inv_f_(T(1.0) / f) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         if (abs(point[2]) < std::numeric_limits<T>::epsilon()) 
             return {T(0.0), T(0.0)};
@@ -52,6 +53,7 @@ public:
     static constexpr size_t param_size_ = 1;
 public:
     Equidistant(const T params[param_size_]) : f_(params[0]), inv_f_(T(1.0) / params[0]) {}
+    Equidistant(const T f) : f_(f), inv_f_(T(1.0) / f) {}
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {
         using std::acos;
         
@@ -119,6 +121,14 @@ public:
     , w_(params[1])
     , inv_w_(T(1.0) / params[1])
     , two_tan_w_2_(2 * tan(params[1] / 2)) {
+    }
+
+    FieldOfView(const T f, const T w) 
+    : f_(f)
+    , inv_f_(T(1.0) / f)
+    , w_(w)
+    , inv_w_(T(1.0) / w)
+    , two_tan_w_2_(2 * tan(w / 2)) {
     }
 
     Eigen::Vector2<T> Project(const Eigen::Vector3<T>& point) const override {

@@ -46,8 +46,6 @@ public:
     {}
 
 public:
-    // Projection methods
-
     Point2D Project(const Point3D& point) const
     {
         const auto prjct = projection_->Project(point);
@@ -83,6 +81,8 @@ public:
     {
         return CheckImageRect(point) && (mask_.empty() || mask_.at<uint8_t>(std::floor(point[1]), std::floor(point[0])) > 0);
     }
+    
+    inline Eigen::Vector2i GetImageSize() const {return image_size_;}
 private:
     inline Point2D Undistort(const Point2D& point) const 
     {
@@ -94,7 +94,6 @@ private:
     {
         return !(point[0] < 0 || point[1] < 0 || point[0] >= image_size_[0] || point[1] >= image_size_[1]);
     }
-
 private:
     const ptrProjectionT projection_;   // projection model
     const ptrDistortionT distortion_;   // distortion model
@@ -102,7 +101,6 @@ private:
     Eigen::Vector2i image_size_;        // image size
     cv::Mat mask_;                      // mask image, defined valid area of the image
 };
-
 
 
 template<typename ScalarT, typename ProjectionT, typename DistortionT>
@@ -134,7 +132,7 @@ public:
     , pp_(Point2D(params + ProjectionT::param_size_))
     , image_size_(0, 0)
     {}
-/*
+
     GeometricCameraModelT(
         const ScalarT projection_params[ProjectionT::param_size_], 
         const ScalarT distortion_params[DistortionT::param_size_], 
@@ -157,9 +155,7 @@ public:
     , image_size_(mask.cols, mask.rows)
     , mask_(mask)
     {}
-*/
 public:
-    // Projection methods
     Point2D Project(const Point3D& point) const
     {
         const auto prjct = projection_.Project(point);
@@ -195,6 +191,8 @@ public:
     {
         return CheckImageRect(point) && (mask_.empty() || mask_.at<uint8_t>(std::floor(point[1]), std::floor(point[0])) > 0);
     }
+    
+    inline Eigen::Vector2i GetImageSize() const {return image_size_;}
 private:
     inline Point2D Undistort(const Point2D& point) const 
     {
@@ -206,8 +204,7 @@ private:
     {
         return !(point[0] < 0 || point[1] < 0 || point[0] >= image_size_[0] || point[1] >= image_size_[1]);
     }
-//private:
-public:
+private:
     ProjectionT projection_;            // projection model
     DistortionT distortion_;            // distortion model
     Point2D pp_;                        // principal point

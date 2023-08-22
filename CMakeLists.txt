@@ -28,7 +28,7 @@ target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${EIGEN3_LIBS} Ceres::ceres
 target_link_libraries(${PROJECT_NAME} utils_lib)
 
 install(
-  DIRECTORY include/camera_model
+  DIRECTORY include/camera_model include/camera_calibration
   DESTINATION include
 )
 install(
