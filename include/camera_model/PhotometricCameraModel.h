@@ -54,17 +54,15 @@ public:
         GenerateInverseModel();
     }
 
-    /// @brief Applay reponse function   
-    /// @param src - [0 .. 256) 
-    /// @return [0 .. 256)
+    ResponseModel(const std::vector<T>& inv_model)
+    : cfs_(0, 0, 0, 0), inv_model_(inv_model) {
+    }
+
     T ApplyResponse(T src) {
         size_t src_func = SetToFuncRange(src);
         return SetToGrayscaleRange(256 * (f[src_func] + cfs_[0] * h_0[src_func] + cfs_[1] * h_1[src_func] + cfs_[2] * h_2[src_func] + cfs_[3] * h_3[src_func])); 
     }
 
-    /// @brief Remove response 
-    /// @param src - [0 .. 256) 
-    /// @return [0 .. 256)
     T RemoveResponse(T src) {
         return inv_model_[SetToGrayscaleRange(src)];
     }
@@ -81,41 +79,6 @@ private:
     Eigen::Vector<T, 4> cfs_;
     std::vector<T> inv_model_;    
 };
-
-template<typename T>
-class InverseResponseModel {
-public:
-    InverseResponseModel(const std::vector<T>& inv_model)
-    : inv_model_(inv_model) {
-    }
-
-    /// @brief Applay reponse function   
-    /// @param src - [0 .. 256) 
-    /// @return [0 .. 256)
-    T ApplyResponse(T src) {
-        size_t src_func = SetToFuncRange(src);
-        return SetToGrayscaleRange(256 * (f[src_func] + cfs_[0] * h_0[src_func] + cfs_[1] * h_1[src_func] + cfs_[2] * h_2[src_func] + cfs_[3] * h_3[src_func])); 
-    }
-
-    /// @brief Remove response 
-    /// @param src - [0 .. 256) 
-    /// @return [0 .. 256)
-    T RemoveResponse(T src) {
-        return inv_model_[SetToGrayscaleRange(src)];
-    }
-private:
-    inline size_t SetToFuncRange(T src) {
-        return static_cast<size_t>(std::max<T>(0, std::min<T>(std::round(4 * src), 1023)));
-    }
-
-    void GenerateInverseModel() {
-        auto func = [this](const float& v) { return ApplyResponse(v);}; 
-        inv_model_ = GeneratePiecewiseInverseFunction<T>(256, 0, 255, func);
-    }
-private:
-    std::vector<T> inv_model_;    
-};
-
 
 template<typename T>
 class PhotometricCameraModel {
