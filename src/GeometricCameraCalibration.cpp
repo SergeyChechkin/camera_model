@@ -1,4 +1,4 @@
-#include "camera_calibration/GeometricCameraModelCalibration.h"
+#include "camera_calibration/GeometricCameraCalibration.h"
 
 void CameraCalibrationT::AddFrame(
     const std::vector<Point3D>& object_points, 

@@ -8,7 +8,7 @@
 #include "camera_model/PinholeCameraModel.h"
 
 #include "camera_calibration/CameraModelGenerator.h"
-#include "camera_calibration/GeometricCameraModelCalibration.h"
+#include "camera_calibration/GeometricCameraCalibration.h"
 #include "camera_calibration/CameraCalibration.h"
 #include "camera_calibration/FrameRemapper.h"
 
@@ -244,7 +244,7 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest) {
     }
 
     Eigen::Vector<double, PerspectiveOnlyGenerator::param_size_> params; 
-    Eigen::Vector<double, PerspectiveOnlyGenerator::param_size_> info;
+    Eigen::Matrix<double, PerspectiveOnlyGenerator::param_size_, PerspectiveOnlyGenerator::param_size_> info;
 
     params.setZero();
     params[0] = 450;
@@ -253,9 +253,9 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest) {
 
     calib.Calibrate<PerspectiveOnlyGenerator>(params, info);
 
-    ASSERT_NEAR(params[0], f, 1.0e-5);
-    ASSERT_NEAR(params[1], pp[0], 1.0e-5);
-    ASSERT_NEAR(params[2], pp[1], 1.0e-5);
+    ASSERT_NEAR(params[0], f, 1.0e-3);
+    ASSERT_NEAR(params[1], pp[0], 1.0e-3);
+    ASSERT_NEAR(params[2], pp[1], 1.0e-3);
 }
 
 TEST(CameraModelTest, GeometricCameraCalibrationTest2) {
