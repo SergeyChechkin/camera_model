@@ -23,7 +23,7 @@ public:
     /// @brief Convert 3D point in camera frame to image frame
     /// @param point - 3D point
     /// @return - image point
-    Vector2D Project(const Vector3D& point) {
+    Vector2D Project(const Vector3D& point) const {
         if (abs(point[2]) < std::numeric_limits<T>::epsilon()) 
             return Vector2D(params_[2], params_[3]);
 
@@ -34,7 +34,7 @@ public:
     /// @brief Convert image point to 3D point in camera frame 
     /// @param point - image point
     /// @return - 3D point
-    Vector3D ReProject(const Vector2D& point) {
+    Vector3D ReProject(const Vector2D& point) const {
         Vector2D dist_prjct = point - Vector2D(params_[2], params_[3]);
         Vector2D undist_prjct = dist_prjct - Undistort(dist_prjct);
         return Vector3D(undist_prjct[0] / params_[0], undist_prjct[1] / params_[1], T(1));
@@ -43,23 +43,23 @@ public:
     /// @brief Convert point from image frame to unit plane frame 
     /// @param point - image point 
     /// @return - unit plane point 
-    Vector2D ImageToUnitPlane(const Vector2D& point) {
+    Vector2D ImageToUnitPlane(const Vector2D& point) const {
         Vector2D dist_prjct = point - Vector2D(params_[2], params_[3]);
         Vector2D undist_prjct = dist_prjct - Undistort(dist_prjct);
         return Vector2D(undist_prjct[0] / params_[0], undist_prjct[1] / params_[1]);
     } 
 
-    Vector2D Project(const T point[3]) {
+    Vector2D Project(const T point[3]) const {
         return Project(Vector3D(point));
     }
 
-    Vector3D ReProject(const T point[2]) {
+    Vector3D ReProject(const T point[2]) const {
         return ReProject(Vector2D(point));
     } 
 
     const std::array<T, 10>& Params()const {return params_;}
 private:
-    Vector2D Distort(const Vector2D& r) {
+    Vector2D Distort(const Vector2D& r) const {
         const T rx = r.x();
         const T ry = r.y();
         const T rx_2 = rx * rx;
@@ -76,7 +76,7 @@ private:
         return rad_dist + dsnt_dist + th_pr_dist;
     }
 
-    Vector2D Undistort(const Vector2D& dr) {
+    Vector2D Undistort(const Vector2D& dr) const {
         // Iterative solution without J computation (J close to 1).
         Vector2D r = dr;
         Vector2D distortion = Distort(r);
