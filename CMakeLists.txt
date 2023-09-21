@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(camera_model_lib)
 
+set(CMAKE_CXX_STANDARD 20)
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   message(STATUS "Setting build type to '${CMAKE_BUILD_TYPE}' as none was specified.")

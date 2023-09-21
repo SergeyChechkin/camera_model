@@ -198,7 +198,7 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest) {
     double f = 500;
     std::array<double, 6> params_3 = {0, 0, 0};
     Eigen::Vector2d pp(320, 240);    
-    auto cm = PerspectiveOnlyGenerator::Create(&f, params_3.data(), pp.data());
+    auto cm = PerspectiveOnlyGenerator::Create<double>(&f, params_3.data(), pp.data());
 
     Eigen::Isometry3d pose;
     pose.translation() = Eigen::Vector3d(0, 0, 10);
@@ -266,7 +266,7 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest2) {
     double f = 500;
     std::array<double, 6> params_3 = {0, 0, 0};
     Eigen::Vector2d pp(320, 240);    
-    auto cm = PerspectiveOnlyGenerator::Create(&f, params_3.data(), pp.data());
+    auto cm = PerspectiveOnlyGenerator::Create<double>(&f, params_3.data(), pp.data());
 
     Eigen::Isometry3d pose;
     pose.setIdentity();
