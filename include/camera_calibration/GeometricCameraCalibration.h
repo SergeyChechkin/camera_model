@@ -8,7 +8,7 @@
 #include <ceres/ceres.h>
 #include <glog/logging.h>
 
-class CameraCalibrationT {
+class CameraCalibrationSolver {
 public:
     using Point3D = Eigen::Vector3d;
     using Point2D = Eigen::Vector2d;
@@ -34,9 +34,7 @@ private:
 
     std::vector<Frame> frames_;
     static constexpr double cell_size_ = 20;
-
 private:
-
     template<typename CameraModelGeneratorT>
     class CalibrationCF {
     public:
@@ -77,14 +75,12 @@ private:
     };
 };
 
-
-
 template<typename CameraModelGeneratorT>
-void CameraCalibrationT::Calibrate(
+void CameraCalibrationSolver::Calibrate(
         Eigen::Vector<double, CameraModelGeneratorT::param_size_>& camera_params, 
         Eigen::Matrix<double, CameraModelGeneratorT::param_size_, CameraModelGeneratorT::param_size_>& info_mat)
 {
-    //NormalizeSpatialDensity();
+    NormalizeSpatialDensity();
 
     for(auto& frame : frames_) {
         // initial pose estimation for all frame
@@ -99,7 +95,7 @@ void CameraCalibrationT::Calibrate(
         }
 
         problem.SetParameterBlockConstant(camera_params.data());
-        Optimize(problem, true, 10, 1e-3);
+        Optimize(problem, false, 10, 1e-3);
     }
 
     ceres::Problem problem;
@@ -146,55 +142,6 @@ void CameraCalibrationT::Calibrate(
             J.row(0) = res_j[0].v.block(0, 0, CameraModelGeneratorT::param_size_, 1);
             J.row(1) = res_j[1].v.block(0, 0, CameraModelGeneratorT::param_size_, 1);
             info_mat += J.transpose() * J;
-        }
-    }
-}
-
-void CameraCalibrationT::NormalizeSpatialDensity() {
-    libs::spatial_hash::SpatialHashTable2DVector<double, std::pair<size_t, size_t>> hash_table(cell_size_); 
-
-    static double radius_sqr = cell_size_ * cell_size_;
-
-    size_t total_count = 0; 
-    for(int i = 0; i < frames_.size(); ++i) {
-        const auto& frame = frames_[i];  
-        for(int j = 0; j < frame.image_points_.size(); ++j) {
-            const auto& ip = frame.image_points_[j];            
-            hash_table.Add(ip.data(), {i,j});
-            ++total_count;
-        }
-    }
-
-    double sum_of_weights = 0; 
-
-    for(int i = 0; i < frames_.size(); ++i) {
-        auto& frame = frames_[i];  
-        for(int j = 0; j < frame.image_points_.size(); ++j) {
-            const auto& ip = frame.image_points_[j]; 
-            auto cell_idx = hash_table.GetCellIndex(ip.data());
-            auto square_idxs = hash_table.SquareSearch(cell_idx, 1);   
-
-            int count = 1;
-            for(auto idx : square_idxs) {
-                auto dif = frames_[idx.first].image_points_[idx.second] - ip;
-                if (dif.dot(dif) < radius_sqr) {
-                    ++count;
-                }
-            }
-
-            const auto weight = 1.0 / count;
-            frame.weights_[j] *= weight;
-            sum_of_weights += weight;
-        }
-    }
-
-    double weights_scale = total_count / sum_of_weights; 
-    
-    for(int i = 0; i < frames_.size(); ++i) {
-        auto& frame = frames_[i];  
-        for(int j = 0; j < frame.image_points_.size(); ++j) {
-            frame.weights_[j] *= weights_scale;
-            sum_of_weights += frame.weights_[j];
         }
     }
 }

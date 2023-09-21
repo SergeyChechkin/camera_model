@@ -193,7 +193,7 @@ TEST(CameraModelTest, GeometricCameraModelT_Test) {
 }
 
 TEST(CameraModelTest, GeometricCameraCalibrationTest) {
-    CameraCalibrationT calib;
+    CameraCalibrationSolver calib;
 
     double f = 500;
     std::array<double, 6> params_3 = {0, 0, 0};

@@ -39,7 +39,8 @@ bool PinholeCameraCalibration::AddFrame(const cv::Mat& frame, cv::Mat* result) {
         auto itr = detected_corners.begin();
         for(int y = 0; y < pattern_size_.height; ++y) {
             for(int x = 0; x < pattern_size_.width; ++x) {
-                image_points.emplace_back(itr->x + 0.5f, itr->y + 0.5f); 
+                image_points.emplace_back(itr->x, itr->y);
+                //image_points.emplace_back(itr->x + 0.5f, itr->y + 0.5f);    // + 0.5f - center pixel correction
                 object_points.emplace_back(x, y, 0); 
                 ++itr;
             } 
