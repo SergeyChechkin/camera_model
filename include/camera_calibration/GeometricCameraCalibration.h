@@ -2,8 +2,6 @@
 
 #include "camera_model/GeometricCameraModel.h"
 
-#include <spatial_hash/SpatialHash2DVector.h>
-
 #include "utils/CeresUtils.h"
 #include <ceres/ceres.h>
 #include <glog/logging.h>
@@ -14,6 +12,7 @@ public:
     using Point2D = Eigen::Vector2d;
 public:
     void AddFrame(
+        int id,
         const std::vector<Point3D>& object_points, 
         const std::vector<Point2D>& image_points,
         const std::vector<double>& weights);
@@ -24,8 +23,9 @@ public:
         Eigen::Matrix<double, CameraModelGeneratorT::param_size_, CameraModelGeneratorT::param_size_>& info_mat);
 private:
     void NormalizeSpatialDensity();
-private:
+public:
     struct Frame {
+        int id_;
         std::vector<Point3D> object_points_;
         std::vector<Point2D> image_points_;
         std::vector<double> weights_;

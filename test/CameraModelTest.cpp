@@ -219,7 +219,7 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest) {
             }
         }
 
-        calib.AddFrame(object_points, image_points, weights);
+        calib.AddFrame(1, object_points, image_points, weights);
     }
 
     pose.translation() = Eigen::Vector3d(0, 0, 50);
@@ -240,7 +240,7 @@ TEST(CameraModelTest, GeometricCameraCalibrationTest) {
             }
         }
 
-        calib.AddFrame(object_points, image_points, weights);
+        calib.AddFrame(1, object_points, image_points, weights);
     }
 
     Eigen::Vector<double, PerspectiveOnlyGenerator::param_size_> params; 

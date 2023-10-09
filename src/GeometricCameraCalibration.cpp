@@ -1,6 +1,8 @@
 #include "camera_calibration/GeometricCameraCalibration.h"
+#include <spatial_hash/SpatialHash2DVector.h>
 
 void CameraCalibrationSolver::AddFrame(
+    int id,
     const std::vector<Point3D>& object_points, 
     const std::vector<Point2D>& image_points,
     const std::vector<double>& weights)
@@ -9,6 +11,7 @@ void CameraCalibrationSolver::AddFrame(
     CHECK_EQ(object_points.size(), weights.size());
     
     Frame new_frame;
+    new_frame.id_ = id;
     new_frame.object_points_ = object_points;
     new_frame.image_points_ = image_points;
     new_frame.weights_ = weights;
