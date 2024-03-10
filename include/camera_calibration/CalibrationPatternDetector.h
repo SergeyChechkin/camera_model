@@ -22,6 +22,9 @@ public:
         std::vector<Eigen::Vector3<T>>& pattern_points, 
         std::vector<Eigen::Vector2<T>>& image_points) 
     {        
+        pattern_points = pattern.GetSaddleCorners();
+        image_points.clear();
+
         std::vector<cv::Point2f> image_corners;
         const int flags = cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE | cv::CALIB_CB_FAST_CHECK;
         const cv::Size cv_pattern_size(pattern.pattern_size_[0] - 1, pattern.pattern_size_[1] - 1);
@@ -32,8 +35,6 @@ public:
 
         const cv::TermCriteria termCrit(cv::TermCriteria::Type::EPS + cv::TermCriteria::Type::MAX_ITER, 30, 0.001);
         cv::cornerSubPix(gray_image, image_corners, cv::Size(feature_patch_size_, feature_patch_size_), cv::Size(-1, -1), termCrit);
-
-        pattern_points = pattern.GetSaddleCorners();
         
         image_points.reserve(image_corners.size());
 

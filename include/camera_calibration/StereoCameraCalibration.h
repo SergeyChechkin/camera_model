@@ -16,19 +16,22 @@ public:
         int id,
         const std::vector<Point3D>& pattern_points, 
         const std::vector<Point2D>& image_points_l,
-        const std::vector<Point2D>& image_points_r,
-        bool status_l, 
-        bool status_r) {
+        const std::vector<Point2D>& image_points_r) {
+            
+            // TODO: replace veights with features covariance
             std::vector<double> weights(pattern_points.size(), 1.0);
-            if (status_l) {
+
+            if (!image_points_l.empty()) {
                 solver_l.AddFrame(id, pattern_points, image_points_l, weights);
             }
 
-            if (status_r) {
+            if (!image_points_r.empty()) {
                 solver_r.AddFrame(id, pattern_points, image_points_r, weights);
             }
             
-            if (status_l && status_r) {
+            if (!image_points_l.empty() && !image_points_r.empty()) {
+                CHECK_EQ(pattern_points.size(), image_points_l.size());
+                CHECK_EQ(pattern_points.size(), image_points_r.size());
                 ids_.push_back(id);
             }
         }   
