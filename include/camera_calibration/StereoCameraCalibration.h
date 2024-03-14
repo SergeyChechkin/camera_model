@@ -120,8 +120,10 @@ void StereoCameraCalibrationSolver::Calibrate(
 {
     Eigen::Matrix<double, CameraModelGeneratorT::param_size_, CameraModelGeneratorT::param_size_> info_mat_l;
     Eigen::Matrix<double, CameraModelGeneratorT::param_size_, CameraModelGeneratorT::param_size_> info_mat_r;
+    std::cout << "Intrinsics calibration ... " << std::endl;
     solver_l.Calibrate<CameraModelGeneratorT>(camera_params_l, info_mat_l); 
     solver_r.Calibrate<CameraModelGeneratorT>(camera_params_r, info_mat_r); 
+    std::cout << "Intrinsics calibration done. " << std::endl;
 
     std::unordered_map<int, size_t> id_idx_l;
     std::unordered_map<int, size_t> id_idx_r;
@@ -165,13 +167,16 @@ void StereoCameraCalibrationSolver::Calibrate(
             problem.AddResidualBlock(cost_function_l, new ceres::CauchyLoss(2.0), 
                 camera_params_l.data(), camera_params_r.data(), frame_l.pose_.data(), pose_rl.data());
         }
-
-        problem.SetParameterBlockConstant(frame_l.pose_.data());
     }
     problem.SetParameterBlockConstant(camera_params_l.data());
     problem.SetParameterBlockConstant(camera_params_r.data());
 
     Optimize(problem, true, 1000, 1e-9);
+
+    problem.SetParameterBlockVariable(camera_params_l.data());
+    problem.SetParameterBlockVariable(camera_params_r.data());
+
+    Optimize(problem, true, 1000, 1e-12);
 }
 
 /*

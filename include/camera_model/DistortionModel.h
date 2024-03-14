@@ -74,6 +74,12 @@ private:
 };
 
 template<typename T>
+using RadialPolynomial2 = RadialPolynomial<T, 2>;
+
+template<typename T>
+using RadialPolynomial3 = RadialPolynomial<T, 3>;
+
+template<typename T>
 class Decentering final : public DistortionModel<T> {
 public:
     static constexpr size_t param_size_ = 2;
