@@ -39,6 +39,7 @@ public:
         image_points.reserve(image_corners.size());
 
         for(size_t i = 0; i < image_corners.size(); ++i) {
+            // TODO: implement convention for pixel position convertion 
             image_points.emplace_back(image_corners[i].x, image_corners[i].y);
             //image_points.emplace_back(image_corners[i].x + 0.5f, image_corners[i].y + 0.5f);    // + 0.5f - center pixel convention
         }

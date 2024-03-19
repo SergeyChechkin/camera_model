@@ -20,6 +20,7 @@ set(SOURCES
     src/CameraCalibration.cpp
     src/GeometricCameraCalibration.cpp
     src/StereoCameraCalibration.cpp
+    src/StereoCalibration.cpp
 )
 
 set(HEADERS
