@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera_calibration/CameraRemap.h"
+#include "camera_calibration/StereoFrame.h"
 #include <Eigen/Core>
 
 
@@ -21,16 +22,14 @@ public:
 
         remap_l_.GenerateRemap(raw_cm_l, rect_cm, rect_image_size, rect_rot_l);
         remap_r_.GenerateRemap(raw_cm_r, rect_cm, rect_image_size, rect_rot_r);
+        stereo_base_ = pose_rl.translation().norm();
     } 
-        
-    void Rectify(
+    
+    RectifedStereoFrame Rectify(
         const cv::Mat& src_image_l, 
-        const cv::Mat& src_image_r, 
-        cv::Mat& rect_image_l, 
-        cv::Mat& rect_image_r)
+        const cv::Mat& src_image_r) 
     {
-        rect_image_l = remap_l_.Remap(src_image_l);
-        rect_image_r = remap_r_.Remap(src_image_r);
+        return RectifedStereoFrame(remap_l_.Remap(src_image_l), remap_r_.Remap(src_image_r), stereo_base_);
     }
 private:
     // Compute rectification rotations for both cameras 
@@ -61,4 +60,5 @@ private:
 private:
     CameraRemap<RawCameraModelT, RectCameraModelT> remap_l_;
     CameraRemap<RawCameraModelT, RectCameraModelT> remap_r_;
+    double stereo_base_;
 };
