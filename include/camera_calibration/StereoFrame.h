@@ -31,7 +31,7 @@ public:
         inv_depth_8.copyTo(bottom_left);
         
         cv::Mat depth_sigma_8;
-        inv_depth_sigma_.convertTo(depth_sigma_8, CV_8U, 255.0 / 20);
+        inv_depth_sigma_.convertTo(depth_sigma_8, CV_8U, 255.0 / 4);
         cv::Mat bottom_right(result, cv::Range(height, 2 * height), cv::Range(width, 2 * width));
         depth_sigma_8.copyTo(bottom_right);
 
