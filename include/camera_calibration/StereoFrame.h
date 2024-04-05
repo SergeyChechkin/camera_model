@@ -7,8 +7,17 @@ public:
     StereoFrame(const cv::Mat& left, const cv::Mat& right)
     : left_(left)
     , right_(right)
-    , inv_depth_(left.rows, left.cols, CV_32F, cv::Scalar(1.0f)) 
+    , inv_depth_(left.rows, left.cols, CV_32F,  cv::Scalar(std::numeric_limits<float>::max())) 
     , inv_depth_sigma_(left.rows, left.cols, CV_32F, cv::Scalar(std::numeric_limits<float>::max()))
+    {
+        
+    }  
+    StereoFrame(const cv::Mat& left, const cv::Mat& right, double stereo_base)
+    : left_(left)
+    , right_(right)
+    , inv_depth_(left.rows, left.cols, CV_32F,  cv::Scalar(std::numeric_limits<float>::max())) 
+    , inv_depth_sigma_(left.rows, left.cols, CV_32F, cv::Scalar(std::numeric_limits<float>::max()))
+    , stereo_base_(stereo_base)
     {
         
     }  
@@ -31,7 +40,7 @@ public:
         inv_depth_8.copyTo(bottom_left);
         
         cv::Mat depth_sigma_8;
-        inv_depth_sigma_.convertTo(depth_sigma_8, CV_8U, 255.0 / 4);
+        inv_depth_sigma_.convertTo(depth_sigma_8, CV_8U, 255.0 / 255.0);
         cv::Mat bottom_right(result, cv::Range(height, 2 * height), cv::Range(width, 2 * width));
         depth_sigma_8.copyTo(bottom_right);
 
@@ -40,18 +49,9 @@ public:
 public:
     cv::Mat left_;
     cv::Mat right_;
-    cv::Mat inv_depth_;
+    cv::Mat inv_depth_;     
     cv::Mat inv_depth_sigma_;
+    double stereo_base_;    // TODO: remove, use stereo camera model
 };
 
-class RectifedStereoFrame : public StereoFrame {
-public:
-    RectifedStereoFrame(const cv::Mat& left, const cv::Mat& right, double stereo_base) 
-    : StereoFrame(left, right)
-    , stereo_base_(stereo_base)
-    {
-
-    } 
-public:
-    double stereo_base_;
-};
+using RectifedStereoFrame = StereoFrame;
